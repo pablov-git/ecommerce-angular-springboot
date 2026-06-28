@@ -1,0 +1,38 @@
+[
+  {
+    "sku": "KEYBOARD-001",
+    "name": "Mechanical Keyboard",
+    "description": "Compact mechanical keyboard with RGB backlight and tactile switches.",
+    "price": 89.99,
+    "stock": 25,
+    "category": "Accessories",
+    "imageUrl": "/assets/products/keyboard.jpg"
+  },
+  {
+    "sku": "MOUSE-001",
+    "name": "Wireless Mouse",
+    "description": "Ergonomic wireless mouse with adjustable DPI and long battery life.",
+    "price": 39.99,
+    "stock": 40,
+    "category": "Accessories",
+    "imageUrl": "/assets/products/mouse.jpg"
+  },
+  {
+    "sku": "LAPTOP-001",
+    "name": "Ultrabook 14",
+    "description": "Lightweight 14-inch laptop with fast SSD storage and high-resolution display.",
+    "price": 999.99,
+    "stock": 12,
+    "category": "Computers",
+    "imageUrl": "/assets/products/ultrabook.jpg"
+  },
+  {
+    "sku": "MONITOR-001",
+    "name": "27-inch Monitor",
+    "description": "27-inch IPS monitor with sharp image quality and slim bezels.",
+    "price": 249.99,
+    "stock": 18,
+    "category": "Monitors",
+    "imageUrl": "/assets/products/monitor.jpg"
+  }
+]

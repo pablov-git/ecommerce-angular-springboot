@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: ecommerce-backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/ecommerce_db
+    username: ecommerce_user
+    password: ecommerce_pass
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+server:
+  port: 8081
+
+logging:
+  level:
+    com.portfolio.ecommerce: INFO
+
+cors:
+  allowed-origins: http://localhost:4200
