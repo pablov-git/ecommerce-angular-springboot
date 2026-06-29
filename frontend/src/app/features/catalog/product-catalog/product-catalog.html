@@ -1,0 +1,32 @@
+<section class="catalog">
+  <header class="hero">
+    <p class="eyebrow">Portfolio ecommerce</p>
+    <h1>Product catalog</h1>
+    <p>Products loaded from Spring Boot, PostgreSQL and Docker.</p>
+  </header>
+
+  @if (isLoading()) {
+    <p class="state">Loading products...</p>
+  }
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (!isLoading() && !errorMessage()) {
+    <section class="grid">
+      @for (product of products(); track product.id) {
+        <article class="card">
+          <p class="category">{{ product.categoryName }}</p>
+          <h2>{{ product.name }}</h2>
+          <p>{{ product.description }}</p>
+
+          <div class="footer">
+            <strong>{{ product.price | currency: 'EUR' }}</strong>
+            <span>{{ product.stock }} in stock</span>
+          </div>
+        </article>
+      }
+    </section>
+  }
+</section>
