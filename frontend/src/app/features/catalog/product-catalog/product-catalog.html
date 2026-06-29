@@ -15,6 +15,27 @@
   }
 
   @if (!isLoading() && !errorMessage()) {
+    <div class="toolbar">
+      <label class="search">
+        <span>Search</span>
+        <input
+          type="search"
+          placeholder="Search products..."
+          [value]="searchTerm()"
+          (input)="onSearchChange($event)"
+        />
+      </label>
+
+      <label class="sort">
+        <span>Sort by</span>
+        <select [value]="sortOption()" (change)="onSortChange($event)">
+          <option value="name-asc">Name</option>
+          <option value="price-asc">Price: low to high</option>
+          <option value="price-desc">Price: high to low</option>
+        </select>
+      </label>
+    </div>
+
     <nav class="filters" aria-label="Product categories">
       <button
         type="button"
@@ -36,6 +57,10 @@
         </button>
       }
     </nav>
+
+    <p class="results-summary">
+      {{ filteredProducts().length }} results
+    </p>
 
     <section class="grid">
       @for (product of filteredProducts(); track product.id) {
