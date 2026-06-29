@@ -1,93 +1,364 @@
 <section class="catalog">
-  <header class="catalog-header">
-    <div>
-      <h1>Products</h1>
-      <p>Browse available products and filter by category.</p>
-    </div>
-  </header>
+  @if (currentView() === 'catalog') {
+    <header class="catalog-header">
+      <div>
+        <h1>Products</h1>
+        <p>Browse products, filter by category and sort by price or name.</p>
+      </div>
 
-  @if (isLoading()) {
-    <p class="state">Loading products...</p>
-  }
-
-  @if (errorMessage()) {
-    <p class="error">{{ errorMessage() }}</p>
-  }
-
-  @if (!isLoading() && !errorMessage()) {
-    <div class="toolbar">
-      <label class="search">
-        <span>Search</span>
-        <input
-          type="search"
-          placeholder="Search products..."
-          [value]="searchTerm()"
-          (input)="onSearchChange($event)"
-        />
-      </label>
-
-      <label class="sort">
-        <span>Sort by</span>
-        <select [value]="sortOption()" (change)="onSortChange($event)">
-          <option value="name-asc">Name</option>
-          <option value="price-asc">Price: low to high</option>
-          <option value="price-desc">Price: high to low</option>
-        </select>
-      </label>
-    </div>
-
-    <nav class="filters" aria-label="Product categories">
       <button
         type="button"
-        class="filter"
-        [class.filter--active]="selectedCategorySlug() === 'all'"
-        (click)="selectCategory('all')"
+        class="cart-button"
+        [class.cart-button--active]="cartCount() > 0"
+        (click)="openCart()"
       >
-        All
+        <span>Cart</span>
+        <strong>{{ cartCount() }}</strong>
       </button>
+    </header>
 
-      @for (category of categories(); track category.id) {
+    @if (isLoading()) {
+      <p class="state">Loading products...</p>
+    }
+
+    @if (errorMessage()) {
+      <p class="error">{{ errorMessage() }}</p>
+    }
+
+    @if (!isLoading() && !errorMessage()) {
+      <section class="toolbar" aria-label="Product search and sorting">
+        <label class="field">
+          <span>Search</span>
+          <input
+            type="search"
+            placeholder="Search by name, SKU or category"
+            [value]="searchTerm()"
+            (input)="onSearchChange($event)"
+          />
+        </label>
+
+        <label class="field field--sort">
+          <span>Sort by</span>
+          <select [value]="sortOption()" (change)="onSortChange($event)">
+            <option value="name-asc">Name</option>
+            <option value="price-asc">Price: low to high</option>
+            <option value="price-desc">Price: high to low</option>
+          </select>
+        </label>
+      </section>
+
+      <nav class="filters" aria-label="Product categories">
         <button
           type="button"
           class="filter"
-          [class.filter--active]="selectedCategorySlug() === category.slug"
-          (click)="selectCategory(category.slug)"
+          [class.filter--active]="selectedCategorySlug() === 'all'"
+          (click)="selectCategory('all')"
         >
-          {{ category.name }}
+          All
         </button>
-      }
-    </nav>
 
-    <p class="results-summary">
-      {{ filteredProducts().length }} results
-    </p>
+        @for (category of categories(); track category.id) {
+          <button
+            type="button"
+            class="filter"
+            [class.filter--active]="selectedCategorySlug() === category.slug"
+            (click)="selectCategory(category.slug)"
+          >
+            {{ category.name }}
+          </button>
+        }
+      </nav>
 
-    <section class="grid">
-      @for (product of filteredProducts(); track product.id) {
-        <article class="product-card">
-          <div class="product-card__image">
-            <span>{{ product.categoryName }}</span>
-          </div>
+      <p class="results-summary">
+        {{ filteredProducts().length }}
+        {{ filteredProducts().length === 1 ? 'product' : 'products' }}
+      </p>
 
-          <div class="product-card__content">
-            <p class="product-card__sku">{{ product.sku }}</p>
-            <h2>{{ product.name }}</h2>
-            <p class="product-card__description">{{ product.description }}</p>
-
-            <div class="product-card__footer">
-              <strong>{{ product.price | currency: 'EUR' }}</strong>
-
-              @if (product.stock > 0) {
-                <span class="stock stock--available">In stock</span>
-              } @else {
-                <span class="stock stock--empty">Out of stock</span>
-              }
+      <section class="product-grid">
+        @for (product of filteredProducts(); track product.id) {
+          <article class="product-card">
+            <div class="product-card__media">
+              <span>{{ product.categoryName }}</span>
             </div>
+
+            <div class="product-card__body">
+              <p class="product-card__sku">{{ product.sku }}</p>
+              <h2>{{ product.name }}</h2>
+              <p class="product-card__description">{{ product.description }}</p>
+
+              <div class="product-card__meta">
+                <strong>{{ product.price | currency: 'EUR' }}</strong>
+
+                @if (product.stock > 0) {
+                  <span class="stock stock--available">In stock</span>
+                } @else {
+                  <span class="stock stock--empty">Out of stock</span>
+                }
+              </div>
+
+              <button
+                type="button"
+                class="add-button"
+                [disabled]="product.stock <= 0"
+                (click)="addToCart(product)"
+              >
+                Add to cart
+              </button>
+            </div>
+          </article>
+        } @empty {
+          <p class="state">No products found.</p>
+        }
+      </section>
+    }
+
+    @if (isCartOpen()) {
+      <div class="cart-backdrop" (click)="closeCart()">
+        <aside
+          class="cart-drawer"
+          aria-label="Shopping cart"
+          (click)="$event.stopPropagation()"
+        >
+          <header class="cart-drawer__header">
+            <div>
+              <h2>Cart</h2>
+              <p>
+                {{ cartCount() }}
+                {{ cartCount() === 1 ? 'item' : 'items' }}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="cart-drawer__close"
+              aria-label="Close cart"
+              (click)="closeCart()"
+            >
+              ×
+            </button>
+          </header>
+
+          @if (cartItems().length === 0) {
+            <p class="cart-empty">Your cart is empty.</p>
+          } @else {
+            <section class="cart-list">
+              @for (item of cartItems(); track item.product.id) {
+                <article class="cart-row">
+                  <div>
+                    <h3>{{ item.product.name }}</h3>
+                    <p>{{ item.product.price | currency: 'EUR' }}</p>
+                  </div>
+
+                  <div class="cart-row__actions">
+                    <button
+                      type="button"
+                      aria-label="Decrease quantity"
+                      (click)="decreaseCartItem(item.product.id)"
+                    >
+                      −
+                    </button>
+
+                    <span>{{ item.quantity }}</span>
+
+                    <button
+                      type="button"
+                      aria-label="Increase quantity"
+                      (click)="addToCart(item.product, false)"
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="cart-row__remove"
+                    (click)="removeCartItem(item.product.id)"
+                  >
+                    Remove
+                  </button>
+                </article>
+              }
+            </section>
+
+            <footer class="cart-drawer__footer">
+              <div>
+                <span>Subtotal</span>
+                <strong>{{ cartSubtotal() | currency: 'EUR' }}</strong>
+              </div>
+
+              <button type="button" (click)="goToCheckout()">
+                Checkout
+              </button>
+
+              <button type="button" class="clear-cart" (click)="clearCart()">
+                Clear cart
+              </button>
+            </footer>
+          }
+        </aside>
+      </div>
+    }
+
+    @if (addedProduct(); as product) {
+      <div
+        class="confirmation-backdrop"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Product added to cart"
+        (click)="closeAddedProductConfirmation()"
+      >
+        <section class="confirmation-modal" (click)="$event.stopPropagation()">
+          <button
+            type="button"
+            class="confirmation-close"
+            aria-label="Close confirmation"
+            (click)="closeAddedProductConfirmation()"
+          >
+            ×
+          </button>
+
+          <div class="confirmation-icon">✓</div>
+
+          <h2>Added to cart</h2>
+          <p>
+            <strong>{{ product.name }}</strong>
+            has been added to your cart.
+          </p>
+
+          <div class="confirmation-actions">
+            <button
+              type="button"
+              class="secondary-action"
+              (click)="closeAddedProductConfirmation()"
+            >
+              Continue shopping
+            </button>
+
+            <button
+              type="button"
+              class="primary-action"
+              (click)="viewCartFromConfirmation()"
+            >
+              View cart
+            </button>
           </div>
-        </article>
-      } @empty {
-        <p class="state">No products found.</p>
-      }
+        </section>
+      </div>
+    }
+  }
+
+  @if (currentView() === 'checkout') {
+    <section class="checkout">
+      <button type="button" class="back-button" (click)="backToCatalog()">
+        ← Back to products
+      </button>
+
+      <header class="checkout-header">
+        <h1>Checkout</h1>
+        <p>Review your order before placing it.</p>
+      </header>
+
+      <form class="checkout-layout" (submit)="placeOrder($event)">
+        <div class="checkout-card">
+          <h2>Contact details</h2>
+
+          <div class="checkout-form">
+            <label>
+              <span>Name</span>
+              <input
+                type="text"
+                placeholder="Your name"
+                autocomplete="name"
+                [value]="checkoutName()"
+                (input)="onCheckoutNameChange($event)"
+              />
+            </label>
+
+            <label>
+              <span>Email</span>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                autocomplete="email"
+                [value]="checkoutEmail()"
+                (input)="onCheckoutEmailChange($event)"
+              />
+            </label>
+
+            <label>
+              <span>Address</span>
+              <input
+                type="text"
+                placeholder="Shipping address"
+                autocomplete="street-address"
+                [value]="checkoutAddress()"
+                (input)="onCheckoutAddressChange($event)"
+              />
+            </label>
+          </div>
+        </div>
+
+        <aside class="checkout-card checkout-summary">
+          <h2>Order summary</h2>
+
+          @for (item of cartItems(); track item.product.id) {
+            <div class="summary-row">
+              <div>
+                <strong>{{ item.product.name }}</strong>
+                <span>Quantity: {{ item.quantity }}</span>
+              </div>
+
+              <span>
+                {{ item.product.price * item.quantity | currency: 'EUR' }}
+              </span>
+            </div>
+          }
+
+          <div class="summary-total">
+            <span>Total</span>
+            <strong>{{ cartSubtotal() | currency: 'EUR' }}</strong>
+          </div>
+
+          <button type="submit" [disabled]="!isCheckoutValid()">
+            Place order
+          </button>
+
+          @if (!isCheckoutValid()) {
+            <p class="checkout-message">
+              Complete your contact details to place the order.
+            </p>
+          }
+        </aside>
+      </form>
+    </section>
+  }
+
+  @if (currentView() === 'order-confirmation') {
+    <section class="order-confirmation">
+      <article class="order-card">
+        <div class="confirmation-icon">✓</div>
+
+        <h1>Order placed</h1>
+        <p>
+          Your order has been created successfully.
+        </p>
+
+        <dl>
+          <div>
+            <dt>Order number</dt>
+            <dd>{{ placedOrderNumber() }}</dd>
+          </div>
+
+          <div>
+            <dt>Email</dt>
+            <dd>{{ checkoutEmail() }}</dd>
+          </div>
+        </dl>
+
+        <button type="button" (click)="startNewOrder()">
+          Back to products
+        </button>
+      </article>
     </section>
   }
 </section>
