@@ -1,8 +1,9 @@
 <section class="catalog">
-  <header class="hero">
-    <p class="eyebrow">Portfolio ecommerce</p>
-    <h1>Product catalog</h1>
-    <p>Products loaded from Spring Boot, PostgreSQL and Docker.</p>
+  <header class="catalog-header">
+    <div>
+      <h1>Products</h1>
+      <p>Browse available products and filter by category.</p>
+    </div>
   </header>
 
   @if (isLoading()) {
@@ -17,7 +18,8 @@
     <nav class="filters" aria-label="Product categories">
       <button
         type="button"
-        [class.active]="selectedCategorySlug() === 'all'"
+        class="filter"
+        [class.filter--active]="selectedCategorySlug() === 'all'"
         (click)="selectCategory('all')"
       >
         All
@@ -26,7 +28,8 @@
       @for (category of categories(); track category.id) {
         <button
           type="button"
-          [class.active]="selectedCategorySlug() === category.slug"
+          class="filter"
+          [class.filter--active]="selectedCategorySlug() === category.slug"
           (click)="selectCategory(category.slug)"
         >
           {{ category.name }}
@@ -36,16 +39,29 @@
 
     <section class="grid">
       @for (product of filteredProducts(); track product.id) {
-        <article class="card">
-          <p class="category">{{ product.categoryName }}</p>
-          <h2>{{ product.name }}</h2>
-          <p>{{ product.description }}</p>
+        <article class="product-card">
+          <div class="product-card__image">
+            <span>{{ product.categoryName }}</span>
+          </div>
 
-          <div class="footer">
-            <strong>{{ product.price | currency: 'EUR' }}</strong>
-            <span>{{ product.stock }} in stock</span>
+          <div class="product-card__content">
+            <p class="product-card__sku">{{ product.sku }}</p>
+            <h2>{{ product.name }}</h2>
+            <p class="product-card__description">{{ product.description }}</p>
+
+            <div class="product-card__footer">
+              <strong>{{ product.price | currency: 'EUR' }}</strong>
+
+              @if (product.stock > 0) {
+                <span class="stock stock--available">In stock</span>
+              } @else {
+                <span class="stock stock--empty">Out of stock</span>
+              }
+            </div>
           </div>
         </article>
+      } @empty {
+        <p class="state">No products found.</p>
       }
     </section>
   }
