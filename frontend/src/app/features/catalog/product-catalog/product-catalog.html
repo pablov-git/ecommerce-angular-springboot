@@ -14,8 +14,28 @@
   }
 
   @if (!isLoading() && !errorMessage()) {
+    <nav class="filters" aria-label="Product categories">
+      <button
+        type="button"
+        [class.active]="selectedCategorySlug() === 'all'"
+        (click)="selectCategory('all')"
+      >
+        All
+      </button>
+
+      @for (category of categories(); track category.id) {
+        <button
+          type="button"
+          [class.active]="selectedCategorySlug() === category.slug"
+          (click)="selectCategory(category.slug)"
+        >
+          {{ category.name }}
+        </button>
+      }
+    </nav>
+
     <section class="grid">
-      @for (product of products(); track product.id) {
+      @for (product of filteredProducts(); track product.id) {
         <article class="card">
           <p class="category">{{ product.categoryName }}</p>
           <h2>{{ product.name }}</h2>
