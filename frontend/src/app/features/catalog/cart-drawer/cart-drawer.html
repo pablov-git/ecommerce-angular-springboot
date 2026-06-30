@@ -1,0 +1,84 @@
+<div class="cart-backdrop" (click)="closeCart()">
+  <aside
+    class="cart-drawer"
+    aria-label="Shopping cart"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="cart-drawer__header">
+      <div>
+        <h2>Cart</h2>
+        <p>
+          {{ cartCount() }}
+          {{ cartCount() === 1 ? 'item' : 'items' }}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="cart-drawer__close"
+        aria-label="Close cart"
+        (click)="closeCart()"
+      >
+        ×
+      </button>
+    </header>
+
+    @if (cartItems().length === 0) {
+      <p class="cart-empty">Your cart is empty.</p>
+    } @else {
+      <section class="cart-list">
+        @for (item of cartItems(); track item.product.id) {
+          <article class="cart-row">
+            <div>
+              <h3>{{ item.product.name }}</h3>
+              <p>{{ item.product.price | currency: 'EUR' }}</p>
+            </div>
+
+            <div class="cart-row__actions">
+              <button
+                type="button"
+                aria-label="Decrease quantity"
+                (click)="decreaseQuantity(item.product.id)"
+              >
+                −
+              </button>
+
+              <span>{{ item.quantity }}</span>
+
+              <button
+                type="button"
+                aria-label="Increase quantity"
+                (click)="increaseQuantity(item.product)"
+              >
+                +
+              </button>
+            </div>
+
+            <button
+              type="button"
+              class="cart-row__remove"
+              (click)="removeItem(item.product.id)"
+            >
+              Remove
+            </button>
+          </article>
+        }
+      </section>
+
+      <footer class="cart-drawer__footer">
+        <div>
+          <span>Subtotal</span>
+          <strong>{{ cartSubtotal() | currency: 'EUR' }}</strong>
+        </div>
+
+        <button type="button" (click)="requestCheckout()">
+          Checkout
+        </button>
+
+        <button type="button" class="clear-cart" (click)="clearCart()">
+          Clear cart
+        </button>
+      </footer>
+    }
+  </aside>
+</div>

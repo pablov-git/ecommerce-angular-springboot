@@ -1,0 +1,30 @@
+<article class="product-card">
+  <div class="product-card__media">
+    <span>{{ product().categoryName }}</span>
+  </div>
+
+  <div class="product-card__body">
+    <p class="product-card__sku">{{ product().sku }}</p>
+    <h2>{{ product().name }}</h2>
+    <p class="product-card__description">{{ product().description }}</p>
+
+    <div class="product-card__meta">
+      <strong>{{ product().price | currency: 'EUR' }}</strong>
+
+      @if (product().stock > 0) {
+        <span class="stock stock--available">In stock</span>
+      } @else {
+        <span class="stock stock--empty">Out of stock</span>
+      }
+    </div>
+
+    <button
+      type="button"
+      class="add-button"
+      [disabled]="product().stock <= 0"
+      (click)="addToCart()"
+    >
+      Add to cart
+    </button>
+  </div>
+</article>

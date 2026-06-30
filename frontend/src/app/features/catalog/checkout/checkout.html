@@ -1,0 +1,83 @@
+<section class="checkout">
+  <button type="button" class="back-button" (click)="onBackToCatalog()">
+    ← Back to products
+  </button>
+
+  <header class="checkout-header">
+    <h1>Checkout</h1>
+    <p>Review your order before placing it.</p>
+  </header>
+
+  <form class="checkout-layout" (submit)="placeOrder($event)">
+    <div class="checkout-card">
+      <h2>Contact details</h2>
+
+      <div class="checkout-form">
+        <label>
+          <span>Name</span>
+          <input
+            type="text"
+            placeholder="Your name"
+            autocomplete="name"
+            [value]="name()"
+            (input)="onNameChange($event)"
+          />
+        </label>
+
+        <label>
+          <span>Email</span>
+          <input
+            type="email"
+            placeholder="you@example.com"
+            autocomplete="email"
+            [value]="email()"
+            (input)="onEmailChange($event)"
+          />
+        </label>
+
+        <label>
+          <span>Address</span>
+          <input
+            type="text"
+            placeholder="Shipping address"
+            autocomplete="street-address"
+            [value]="address()"
+            (input)="onAddressChange($event)"
+          />
+        </label>
+      </div>
+    </div>
+
+    <aside class="checkout-card checkout-summary">
+      <h2>Order summary</h2>
+
+      @for (item of cartItems(); track item.product.id) {
+        <div class="summary-row">
+          <div>
+            <strong>{{ item.product.name }}</strong>
+            <span>Quantity: {{ item.quantity }}</span>
+          </div>
+
+          <span>
+            {{ item.product.price * item.quantity | currency: 'EUR' }}
+          </span>
+        </div>
+      }
+
+      <div class="summary-total">
+        <span>Total</span>
+        <strong>{{ cartSubtotal() | currency: 'EUR' }}</strong>
+      </div>
+
+      <button type="submit" [disabled]="!isValid()">
+        Place order
+      </button>
+
+      @if (!isValid()) {
+        <p class="checkout-message">
+          Complete your contact details to place the order.
+        </p>
+      }
+    </aside>
+  </form>
+</section>
