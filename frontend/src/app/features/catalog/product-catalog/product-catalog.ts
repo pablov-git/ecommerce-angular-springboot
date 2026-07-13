@@ -1,27 +1,27 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { AddToCartConfirmation } from '../add-to-cart-confirmation/add-to-cart-confirmation';
 import { CartDrawer } from '../cart-drawer/cart-drawer';
-import { Checkout, CheckoutFormValue } from '../checkout/checkout';
 import { CatalogApi } from '../data/catalog-api';
 import { CartStore } from '../data/cart-store';
-import { ProductCard } from '../product-card/product-card';
 import { Category } from '../models/category';
 import { Product } from '../models/product';
+import { ProductCard } from '../product-card/product-card';
 
 type SortOption = 'name-asc' | 'price-asc' | 'price-desc';
-type CatalogView = 'catalog' | 'checkout' | 'order-confirmation';
 
 @Component({
   selector: 'app-product-catalog',
   standalone: true,
-  imports: [Checkout, CartDrawer, AddToCartConfirmation, ProductCard],
+  imports: [AddToCartConfirmation, CartDrawer, ProductCard],
   templateUrl: './product-catalog.html',
   styleUrl: './product-catalog.scss',
 })
 export class ProductCatalog {
   private readonly catalogApi = inject(CatalogApi);
   private readonly cartStore = inject(CartStore);
+  private readonly router = inject(Router);
 
   readonly products = signal<Product[]>([]);
   readonly categories = signal<Category[]>([]);
@@ -30,15 +30,11 @@ export class ProductCatalog {
   readonly cartCount = this.cartStore.cartCount;
   readonly cartSubtotal = this.cartStore.cartSubtotal;
 
-  readonly currentView = signal<CatalogView>('catalog');
   readonly selectedCategorySlug = signal<string>('all');
   readonly searchTerm = signal('');
   readonly sortOption = signal<SortOption>('name-asc');
   readonly isCartOpen = signal(false);
   readonly addedProduct = signal<Product | null>(null);
-
-  readonly placedOrderNumber = signal('');
-  readonly placedOrderEmail = signal('');
 
   readonly isLoading = signal(true);
   readonly errorMessage = signal('');
@@ -100,11 +96,8 @@ export class ProductCatalog {
 
     this.closeAddedProductConfirmation();
     this.isCartOpen.set(false);
-    this.currentView.set('checkout');
-  }
 
-  backToCatalog(): void {
-    this.currentView.set('catalog');
+    void this.router.navigate(['/checkout']);
   }
 
   addToCart(product: Product, showConfirmation = true): void {
@@ -125,7 +118,6 @@ export class ProductCatalog {
 
   clearCart(): void {
     this.cartStore.clear();
-    this.currentView.set('catalog');
     this.isCartOpen.set(false);
     this.closeAddedProductConfirmation();
   }
@@ -147,19 +139,6 @@ export class ProductCatalog {
   onSortChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
     this.sortOption.set(select.value as SortOption);
-  }
-
-  placeOrder(formValue: CheckoutFormValue): void {
-    this.placedOrderNumber.set(this.createOrderNumber());
-    this.placedOrderEmail.set(formValue.email);
-    this.cartStore.clear();
-    this.currentView.set('order-confirmation');
-  }
-
-  startNewOrder(): void {
-    this.placedOrderNumber.set('');
-    this.placedOrderEmail.set('');
-    this.currentView.set('catalog');
   }
 
   private showAddedProductConfirmation(product: Product): void {
@@ -187,9 +166,5 @@ export class ProductCatalog {
         this.isLoading.set(false);
       },
     });
-  }
-
-  private createOrderNumber(): string {
-    return `ORD-${Date.now().toString().slice(-8)}`;
   }
 }

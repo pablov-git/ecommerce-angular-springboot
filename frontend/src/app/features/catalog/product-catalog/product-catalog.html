@@ -1,147 +1,109 @@
 <section class="catalog">
-  @if (currentView() === 'catalog') {
-    <header class="catalog-header">
-      <div>
-        <h1>Products</h1>
-        <p>Browse products, filter by category and sort by price or name.</p>
-      </div>
+  <header class="catalog-header">
+    <div>
+      <h1>Products</h1>
+      <p>Browse products, filter by category and sort by price or name.</p>
+    </div>
 
+    <button
+      type="button"
+      class="cart-button"
+      [class.cart-button--active]="cartCount() > 0"
+      (click)="openCart()"
+    >
+      <span>Cart</span>
+      <strong>{{ cartCount() }}</strong>
+    </button>
+  </header>
+
+  @if (isLoading()) {
+    <p class="state">Loading products...</p>
+  }
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (!isLoading() && !errorMessage()) {
+    <section class="toolbar" aria-label="Product search and sorting">
+      <label class="field">
+        <span>Search</span>
+        <input
+          type="search"
+          placeholder="Search by name, SKU or category"
+          [value]="searchTerm()"
+          (input)="onSearchChange($event)"
+        />
+      </label>
+
+      <label class="field field--sort">
+        <span>Sort by</span>
+        <select [value]="sortOption()" (change)="onSortChange($event)">
+          <option value="name-asc">Name</option>
+          <option value="price-asc">Price: low to high</option>
+          <option value="price-desc">Price: high to low</option>
+        </select>
+      </label>
+    </section>
+
+    <nav class="filters" aria-label="Product categories">
       <button
         type="button"
-        class="cart-button"
-        [class.cart-button--active]="cartCount() > 0"
-        (click)="openCart()"
+        class="filter"
+        [class.filter--active]="selectedCategorySlug() === 'all'"
+        (click)="selectCategory('all')"
       >
-        <span>Cart</span>
-        <strong>{{ cartCount() }}</strong>
+        All
       </button>
-    </header>
 
-    @if (isLoading()) {
-      <p class="state">Loading products...</p>
-    }
-
-    @if (errorMessage()) {
-      <p class="error">{{ errorMessage() }}</p>
-    }
-
-    @if (!isLoading() && !errorMessage()) {
-      <section class="toolbar" aria-label="Product search and sorting">
-        <label class="field">
-          <span>Search</span>
-          <input
-            type="search"
-            placeholder="Search by name, SKU or category"
-            [value]="searchTerm()"
-            (input)="onSearchChange($event)"
-          />
-        </label>
-
-        <label class="field field--sort">
-          <span>Sort by</span>
-          <select [value]="sortOption()" (change)="onSortChange($event)">
-            <option value="name-asc">Name</option>
-            <option value="price-asc">Price: low to high</option>
-            <option value="price-desc">Price: high to low</option>
-          </select>
-        </label>
-      </section>
-
-      <nav class="filters" aria-label="Product categories">
+      @for (category of categories(); track category.id) {
         <button
           type="button"
           class="filter"
-          [class.filter--active]="selectedCategorySlug() === 'all'"
-          (click)="selectCategory('all')"
+          [class.filter--active]="selectedCategorySlug() === category.slug"
+          (click)="selectCategory(category.slug)"
         >
-          All
+          {{ category.name }}
         </button>
+      }
+    </nav>
 
-        @for (category of categories(); track category.id) {
-          <button
-            type="button"
-            class="filter"
-            [class.filter--active]="selectedCategorySlug() === category.slug"
-            (click)="selectCategory(category.slug)"
-          >
-            {{ category.name }}
-          </button>
-        }
-      </nav>
+    <p class="results-summary">
+      {{ filteredProducts().length }}
+      {{ filteredProducts().length === 1 ? 'product' : 'products' }}
+    </p>
 
-      <p class="results-summary">
-        {{ filteredProducts().length }}
-        {{ filteredProducts().length === 1 ? 'product' : 'products' }}
-      </p>
-
-      <section class="product-grid">
-        @for (product of filteredProducts(); track product.id) {
-          <app-product-card
-            [product]="product"
-            (addRequested)="addToCart($event)"
-          />
-        } @empty {
-          <p class="state">No products found.</p>
-        }
-      </section>
-    }
-
-    @if (isCartOpen()) {
-      <app-cart-drawer
-        [cartItems]="cartItems()"
-        [cartCount]="cartCount()"
-        [cartSubtotal]="cartSubtotal()"
-        (cartClosed)="closeCart()"
-        (checkoutRequested)="goToCheckout()"
-        (cartCleared)="clearCart()"
-        (quantityIncreased)="addToCart($event, false)"
-        (quantityDecreased)="decreaseCartItem($event)"
-        (itemRemoved)="removeCartItem($event)"
-      />
-    }
-
-    @if (addedProduct(); as product) {
-      <app-add-to-cart-confirmation
-        [product]="product"
-        (closed)="closeAddedProductConfirmation()"
-        (viewCartRequested)="viewCartFromConfirmation()"
-      />
-    }
+    <section class="product-grid">
+      @for (product of filteredProducts(); track product.id) {
+        <app-product-card
+          [product]="product"
+          (addRequested)="addToCart($event)"
+        />
+      } @empty {
+        <p class="state">No products found.</p>
+      }
+    </section>
   }
 
-  @if (currentView() === 'checkout') {
-    <app-checkout
+  @if (isCartOpen()) {
+    <app-cart-drawer
       [cartItems]="cartItems()"
+      [cartCount]="cartCount()"
       [cartSubtotal]="cartSubtotal()"
-      (backToCatalog)="backToCatalog()"
-      (orderPlaced)="placeOrder($event)"
+      (cartClosed)="closeCart()"
+      (checkoutRequested)="goToCheckout()"
+      (cartCleared)="clearCart()"
+      (quantityIncreased)="addToCart($event, false)"
+      (quantityDecreased)="decreaseCartItem($event)"
+      (itemRemoved)="removeCartItem($event)"
     />
   }
 
-  @if (currentView() === 'order-confirmation') {
-    <section class="order-confirmation">
-      <article class="order-card">
-        <div class="order-card__icon">✓</div>
-
-        <h1>Order placed</h1>
-        <p>Your order has been created successfully.</p>
-
-        <dl>
-          <div>
-            <dt>Order number</dt>
-            <dd>{{ placedOrderNumber() }}</dd>
-          </div>
-
-          <div>
-            <dt>Email</dt>
-            <dd>{{ placedOrderEmail() }}</dd>
-          </div>
-        </dl>
-
-        <button type="button" (click)="startNewOrder()">
-          Back to products
-        </button>
-      </article>
-    </section>
+  @if (addedProduct(); as product) {
+    <app-add-to-cart-confirmation
+      [product]="product"
+      (closed)="closeAddedProductConfirmation()"
+      (viewCartRequested)="viewCartFromConfirmation()"
+    />
   }
 </section>

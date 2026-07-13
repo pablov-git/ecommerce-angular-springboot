@@ -1,0 +1,34 @@
+<section class="order-confirmation">
+  <article class="order-card">
+    @if (orderSummary(); as order) {
+      <div class="order-card__icon">✓</div>
+
+      <h1>Order placed</h1>
+      <p>Your order has been created successfully.</p>
+
+      <dl>
+        <div>
+          <dt>Order number</dt>
+          <dd>{{ order.orderNumber }}</dd>
+        </div>
+
+        <div>
+          <dt>Email</dt>
+          <dd>{{ order.customerEmail }}</dd>
+        </div>
+
+        <div>
+          <dt>Total</dt>
+          <dd>{{ order.totalAmount | currency: 'EUR' }}</dd>
+        </div>
+      </dl>
+    } @else {
+      <h1>No order found</h1>
+      <p>There is no recent order to display.</p>
+    }
+
+    <button type="button" (click)="backToProducts()">
+      Back to products
+    </button>
+  </article>
+</section>
