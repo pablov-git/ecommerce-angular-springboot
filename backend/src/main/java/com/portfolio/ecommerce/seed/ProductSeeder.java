@@ -6,11 +6,9 @@ import com.portfolio.ecommerce.category.Category;
 import com.portfolio.ecommerce.category.CategoryRepository;
 import com.portfolio.ecommerce.product.Product;
 import com.portfolio.ecommerce.product.ProductRepository;
-
+import com.portfolio.ecommerce.seed.dto.SeedProduct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.portfolio.ecommerce.seed.dto.SeedProduct;
-
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
@@ -32,11 +30,6 @@ public class ProductSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        if (productRepository.count() > 0) {
-            log.info("Product seed skipped because products already exist");
-            return;
-        }
-
         try {
             ClassPathResource resource = new ClassPathResource("seed/products.json");
 
@@ -47,37 +40,61 @@ public class ProductSeeder implements CommandLineRunner {
                     }
                 );
 
-                List<Product> products = seedProducts.stream()
-                    .map(this::toProduct)
-                    .toList();
+                int insertedProducts = 0;
+                int updatedProducts = 0;
 
-                productRepository.saveAll(products);
+                for (SeedProduct seedProduct : seedProducts) {
+                    Category category = findOrCreateCategory(seedProduct.category());
 
-                log.info("Product seed completed. {} products inserted", products.size());
+                    Product product = productRepository.findBySku(seedProduct.sku())
+                        .orElse(null);
+
+                    if (product == null) {
+                        productRepository.save(
+                            Product.builder()
+                                .sku(seedProduct.sku())
+                                .name(seedProduct.name())
+                                .description(seedProduct.description())
+                                .price(seedProduct.price())
+                                .stock(seedProduct.stock())
+                                .imageUrl(seedProduct.imageUrl())
+                                .category(category)
+                                .build()
+                        );
+
+                        insertedProducts++;
+                    } else {
+                        product.setName(seedProduct.name());
+                        product.setDescription(seedProduct.description());
+                        product.setPrice(seedProduct.price());
+                        product.setImageUrl(seedProduct.imageUrl());
+                        product.setCategory(category);
+
+                        updatedProducts++;
+                    }
+                }
+
+                log.info(
+                    "Product seed completed. {} products inserted, {} products updated",
+                    insertedProducts,
+                    updatedProducts
+                );
             }
         } catch (Exception exception) {
             log.error("Product seed failed: {}", exception.getMessage(), exception);
         }
     }
 
-    private Product toProduct(SeedProduct seedProduct) {
-        Category category = categoryRepository.findByName(seedProduct.category())
+    private Category findOrCreateCategory(String categoryName) {
+        String slug = toSlug(categoryName);
+
+        return categoryRepository.findBySlug(slug)
             .orElseGet(() -> categoryRepository.save(
                 Category.builder()
-                    .name(seedProduct.category())
-                    .slug(toSlug(seedProduct.category()))
+                    .name(categoryName)
+                    .slug(slug)
                     .build()
             ));
-
-        return Product.builder()
-            .sku(seedProduct.sku())
-            .name(seedProduct.name())
-            .description(seedProduct.description())
-            .price(seedProduct.price())
-            .stock(seedProduct.stock())
-            .imageUrl(seedProduct.imageUrl())
-            .category(category)
-            .build();
     }
 
     private String toSlug(String value) {

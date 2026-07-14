@@ -1,8 +1,8 @@
 <section class="catalog">
   <header class="catalog-header">
-    <div>
-      <h1>Products</h1>
-      <p>Browse products, filter by category and sort by price or name.</p>
+    <div class="brand">
+      <h1>Pixeltronics</h1>
+      <p>Tech Store</p>
     </div>
 
     <button
@@ -11,7 +11,28 @@
       [class.cart-button--active]="cartCount() > 0"
       (click)="openCart()"
     >
+      <svg
+        class="cart-button__icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M3 4h2l1.7 9.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.4L20 8H6"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+
+        <path
+          d="M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM17 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+          fill="currentColor"
+        />
+      </svg>
+
       <span>Cart</span>
+
       <strong>{{ cartCount() }}</strong>
     </button>
   </header>
@@ -25,28 +46,90 @@
   }
 
   @if (!isLoading() && !errorMessage()) {
-    <section class="toolbar" aria-label="Product search and sorting">
+    <section
+      class="toolbar"
+      aria-label="Product search and sorting"
+    >
       <label class="field">
         <span>Search</span>
+
         <input
           type="search"
-          placeholder="Search by name, SKU or category"
+          placeholder="Search by name or category"
           [value]="searchTerm()"
           (input)="onSearchChange($event)"
         />
       </label>
 
-      <label class="field field--sort">
-        <span>Sort by</span>
-        <select [value]="sortOption()" (change)="onSortChange($event)">
-          <option value="name-asc">Name</option>
-          <option value="price-asc">Price: low to high</option>
-          <option value="price-desc">Price: high to low</option>
-        </select>
-      </label>
+      <div class="field field--sort">
+        <span id="sort-label">Sort by</span>
+
+        <div class="sort-control">
+          <button
+            type="button"
+            class="sort-trigger"
+            [class.sort-trigger--open]="isSortMenuOpen()"
+            aria-haspopup="menu"
+            [attr.aria-expanded]="isSortMenuOpen()"
+            aria-labelledby="sort-label sort-current-value"
+            (click)="toggleSortMenu()"
+            (keydown)="onSortTriggerKeydown($event)"
+          >
+            <span
+              id="sort-current-value"
+              class="sort-trigger__value"
+            >
+              {{ selectedSortLabel() }}
+            </span>
+
+            <span
+              class="sort-trigger__chevron"
+              aria-hidden="true"
+            ></span>
+          </button>
+
+          @if (isSortMenuOpen()) {
+            <div
+              class="sort-menu"
+              role="menu"
+              aria-labelledby="sort-label"
+              (keydown)="onSortMenuKeydown($event)"
+            >
+              @for (option of sortOptions; track option.value) {
+                <button
+                  type="button"
+                  class="sort-option"
+                  [class.sort-option--selected]="
+                    sortOption() === option.value
+                  "
+                  role="menuitemradio"
+                  [attr.aria-checked]="
+                    sortOption() === option.value
+                  "
+                  (click)="selectSortOption(option.value)"
+                >
+                  <span>{{ option.label }}</span>
+
+                  @if (sortOption() === option.value) {
+                    <span
+                      class="sort-option__check"
+                      aria-hidden="true"
+                    >
+                      ✓
+                    </span>
+                  }
+                </button>
+              }
+            </div>
+          }
+        </div>
+      </div>
     </section>
 
-    <nav class="filters" aria-label="Product categories">
+    <nav
+      class="filters"
+      aria-label="Product categories"
+    >
       <button
         type="button"
         class="filter"
@@ -60,7 +143,9 @@
         <button
           type="button"
           class="filter"
-          [class.filter--active]="selectedCategorySlug() === category.slug"
+          [class.filter--active]="
+            selectedCategorySlug() === category.slug
+          "
           (click)="selectCategory(category.slug)"
         >
           {{ category.name }}

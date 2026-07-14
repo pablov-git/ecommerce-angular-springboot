@@ -1,5 +1,11 @@
 <article class="product-card">
   <div class="product-card__media">
+    <img
+      [src]="product().imageUrl"
+      [alt]="product().name"
+      loading="lazy"
+    />
+
     <span>{{ product().categoryName }}</span>
   </div>
 

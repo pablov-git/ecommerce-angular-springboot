@@ -1,263 +1,291 @@
-# E-commerce Angular + Spring Boot
+# Pixeltronics
 
-Full-stack e-commerce application built as a portfolio project with Angular, Spring Boot, PostgreSQL and Docker.
+Full-stack e-commerce portfolio project built with **Angular 21**, **Spring Boot 4.1**, **Java 21** and **PostgreSQL**.
 
-The project implements a real product catalog, shopping cart, checkout flow and order persistence. The backend exposes a REST API, validates order requests, persists customer orders and order items in PostgreSQL, and updates product stock when an order is placed.
+Pixeltronics implements a complete catalog-to-order flow: products are loaded from a REST API, the cart is persisted in the browser, checkout data is validated, and orders are created transactionally in PostgreSQL while product stock is updated.
+
+![Pixeltronics product catalog](docs/screenshots/pixeltronics-1.png)
+
+## Main Features
+
+### Product catalog
+
+- Product data loaded from the Spring Boot API.
+- Search by product name or category.
+- Category filtering.
+- Custom sorting by name and price.
+- Product stock visibility.
+- Responsive Pixeltronics interface with subtle transitions and reduced-motion support.
+
+### Shopping cart
+
+- Add products to the cart.
+- Increase and decrease quantities.
+- Remove individual items or clear the cart.
+- Prevent quantities from exceeding available stock.
+- Persist cart state in `localStorage`.
+- Synchronize persisted cart data with the current backend catalog.
+
+### Checkout
+
+- Dedicated `/checkout` route.
+- User-friendly validation for name, email and shipping address.
+- Inline validation messages and accessible invalid-field states.
+- Order summary with quantities and calculated total.
+- Error feedback when the backend cannot create the order.
+
+### Order processing
+
+`POST /api/orders` performs the complete order workflow inside a transaction:
+
+1. Validates the request body.
+2. Loads and validates every requested product.
+3. Checks available stock.
+4. Calculates line totals and the final order total.
+5. Persists the customer order.
+6. Persists its order items.
+7. Decreases product stock.
+8. Returns the created order with HTTP `201 Created`.
+
+### API documentation
+
+- OpenAPI specification generated with Springdoc.
+- Interactive Swagger UI.
+- Documented request schemas, response schemas and HTTP status codes.
+- Executable API requests from the browser.
+
+## Application Flow
+
+<table>
+  <tr>
+    <td width="50%">
+      <strong>Add-to-cart confirmation</strong><br><br>
+      <img src="docs/screenshots/pixeltronics-2.png" alt="Pixeltronics add-to-cart confirmation">
+    </td>
+    <td width="50%">
+      <strong>Shopping cart</strong><br><br>
+      <img src="docs/screenshots/pixeltronics-3.png" alt="Pixeltronics shopping cart drawer">
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <strong>Checkout</strong><br><br>
+      <img src="docs/screenshots/pixeltronics-4.png" alt="Pixeltronics checkout">
+    </td>
+    <td width="50%">
+      <strong>Order confirmation</strong><br><br>
+      <img src="docs/screenshots/pixeltronics-5.png" alt="Pixeltronics order confirmation">
+    </td>
+  </tr>
+</table>
 
 ## Tech Stack
 
 ### Frontend
 
-* Angular 21
-* TypeScript
-* Standalone components
-* Angular signals
-* Angular Router
-* SCSS
-* LocalStorage cart persistence
+- Angular 21
+- TypeScript
+- Standalone components
+- Angular signals
+- Angular Router
+- SCSS
+- Browser `localStorage`
 
 ### Backend
 
-* Java 21
-* Spring Boot 4.1
-* Spring Web MVC
-* Spring Data JPA
-* Hibernate
-* PostgreSQL
-* Bean Validation
-* Lombok
-* MapStruct
-* Maven
+- Java 21
+- Spring Boot 4.1
+- Spring Web MVC
+- Spring Data JPA
+- Hibernate
+- PostgreSQL
+- Jakarta Bean Validation
+- MapStruct
+- Lombok
+- Springdoc OpenAPI
+- Maven
 
-### Infrastructure and tooling
+### Testing and Tooling
 
-* Docker Compose
-* PostgreSQL 16
-* Redis 7
-* GitHub Actions
-* JUnit
-* Mockito
-* Spring Boot integration tests
-* MockMvc
+- JUnit
+- Mockito
+- Spring Boot integration tests
+- MockMvc
+- Docker Compose
+- GitHub Actions
+- npm
 
-## Features
+## Architecture
 
-### Product catalog
+The backend follows a **feature-based package structure**:
 
-* Product listing loaded from the backend API.
-* Category filtering.
-* Product search.
-* Product sorting by name and price.
-* Product stock display.
-
-### Cart
-
-* Add products to cart.
-* Increase and decrease item quantity.
-* Remove items.
-* Clear cart.
-* Cart persisted in LocalStorage.
-* Cart synchronized with current backend product stock.
-
-### Checkout
-
-* Checkout route with form validation.
-* Order summary before placing the order.
-* Order creation through backend API.
-* Error state when the order cannot be placed.
-
-### Backend order flow
-
-When the frontend sends `POST /api/orders`, the backend:
-
-1. Validates the request body.
-2. Checks that every product exists.
-3. Checks that requested quantities do not exceed available stock.
-4. Calculates line totals and order total.
-5. Creates a `customer_orders` record.
-6. Creates related `order_items`.
-7. Decreases product stock.
-8. Returns the created order response.
-
-## Project Structure
-
-```txt
-ecommerce-angular-springboot/
-  backend/
-    src/main/java/com/portfolio/ecommerce/
-      category/
-      common/
-      order/
-      product/
-      seed/
-    src/test/java/com/portfolio/ecommerce/
-      order/
-    src/main/resources/
-      application.yaml
-      seed/products.json
-    pom.xml
-
-  frontend/
-    src/app/
-      features/catalog/
-        add-to-cart-confirmation/
-        cart-drawer/
-        checkout/
-        data/
-        models/
-        order-confirmation/
-        product-card/
-        product-catalog/
-      app.config.ts
-      app.routes.ts
-      app.html
-      app.ts
-    package.json
-
-  compose.yml
-  README.md
-```
-
-## Backend Architecture
-
-The backend is organized by feature package:
-
-```txt
+```text
 category/
 product/
 order/
 common/
+seed/
 ```
 
-This avoids placing everything into generic controller, service and repository folders and keeps each domain area easier to maintain.
+Each feature owns its controllers, services, repositories, entities and DTOs where applicable. This keeps related code together and avoids a large project-wide separation into generic controller, service and repository folders.
 
-The order module contains:
+The frontend uses focused standalone components:
 
-```txt
-order/
-  CustomerOrder.java
-  OrderItem.java
-  OrderStatus.java
-  CustomerOrderRepository.java
-  OrderService.java
-  OrderController.java
-  dto/
-    CreateOrderRequest.java
-    CreateOrderItemRequest.java
-    OrderResponse.java
-    OrderItemResponse.java
-```
-
-## Frontend Architecture
-
-The frontend uses standalone Angular components and signals.
-
-Main catalog components:
-
-```txt
+```text
 product-catalog/
 product-card/
 cart-drawer/
+add-to-cart-confirmation/
 checkout/
 order-confirmation/
-add-to-cart-confirmation/
 ```
 
-State is handled with simple injectable stores:
+State is handled through injectable signal-based stores:
 
-```txt
-CartStore
-OrderStore
+- `CartStore` manages cart state and `localStorage` persistence.
+- `OrderStore` keeps the latest order response available for the confirmation route.
+
+High-level flow:
+
+```text
+Angular application
+        |
+        | HTTP / JSON
+        v
+Spring Boot REST API
+        |
+        | JPA / Hibernate
+        v
+PostgreSQL
 ```
 
-The cart is persisted in LocalStorage.
+Additional architecture notes are available in [`docs/architecture.md`](docs/architecture.md).
 
-## API Endpoints
+## API Documentation
 
-### Products
+Swagger UI is available while the backend is running:
 
-```http
-GET /api/products
+```text
+http://localhost:8081/swagger-ui.html
 ```
 
-Returns all products.
+Raw OpenAPI specification:
 
-```http
-GET /api/products/{id}
+```text
+http://localhost:8081/v3/api-docs
 ```
 
-Returns a product by ID.
+### Create-order request
 
-### Categories
+Swagger documents the customer data and order items required by `POST /api/orders`.
 
-```http
-GET /api/categories
-```
+![Swagger create-order request](docs/screenshots/swagger-create-order-request.png)
 
-Returns all categories.
+### Successful response
 
-### Orders
+A successful request returns HTTP `201 Created` with the persisted order, calculated total and order lines.
 
-```http
-POST /api/orders
-```
+![Swagger create-order response](docs/screenshots/swagger-create-order-response.png)
 
-Creates a customer order.
+## REST Endpoints
 
-Example request:
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/products` | Returns all products |
+| `GET` | `/api/products/{id}` | Returns one product by UUID |
+| `GET` | `/api/categories` | Returns all product categories |
+| `POST` | `/api/orders` | Validates and creates a customer order |
+
+### Example order request
+
+`productId` must contain the UUID of an existing product returned by `GET /api/products`.
 
 ```json
 {
-  "customerName": "Pablo",
-  "customerEmail": "pablo@example.com",
-  "shippingAddress": "Calle Test 123",
+  "customerName": "Portfolio User",
+  "customerEmail": "portfolio@example.com",
+  "shippingAddress": "123 Example Street, Madrid",
   "items": [
     {
-      "productId": "PRODUCT_UUID",
-      "quantity": 2
+      "productId": "99364f53-2fb2-477b-b1de-c12593755ba7",
+      "quantity": 1
     }
   ]
 }
 ```
 
-Example response:
+### Example successful response
 
 ```json
 {
-  "id": "ORDER_UUID",
-  "orderNumber": "ORD-AB12CD34",
-  "customerName": "Pablo",
-  "customerEmail": "pablo@example.com",
-  "shippingAddress": "Calle Test 123",
+  "id": "b816b787-adfb-4fae-8248-dcacd4db03df",
+  "orderNumber": "ORD-FD0F0611",
+  "customerName": "Portfolio User",
+  "customerEmail": "portfolio@example.com",
+  "shippingAddress": "123 Example Street, Madrid",
   "status": "CREATED",
-  "totalAmount": 179.98,
-  "createdAt": "2026-07-13T21:30:00Z",
+  "totalAmount": 249.99,
+  "createdAt": "2026-07-14T01:36:34.728Z",
   "items": [
     {
-      "productId": "PRODUCT_UUID",
-      "productSku": "KEYBOARD-001",
-      "productName": "Mechanical Keyboard",
-      "unitPrice": 89.99,
-      "quantity": 2,
-      "lineTotal": 179.98
+      "productId": "99364f53-2fb2-477b-b1de-c12593755ba7",
+      "productSku": "MONITOR-001",
+      "productName": "27-inch Monitor",
+      "unitPrice": 249.99,
+      "quantity": 1,
+      "lineTotal": 249.99
     }
   ]
 }
 ```
 
-## Local Setup
+## Project Structure
+
+```text
+ecommerce-angular-springboot/
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+├── backend/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/com/portfolio/ecommerce/
+│   │   │   │   ├── category/
+│   │   │   │   ├── common/
+│   │   │   │   ├── order/
+│   │   │   │   ├── product/
+│   │   │   │   └── seed/
+│   │   │   └── resources/
+│   │   │       ├── seed/products.json
+│   │   │       └── application.yaml
+│   │   └── test/
+│   ├── pom.xml
+│   ├── mvnw
+│   └── mvnw.cmd
+├── frontend/
+│   ├── public/
+│   │   └── assets/products/
+│   ├── src/
+│   │   └── app/features/catalog/
+│   ├── package.json
+│   └── package-lock.json
+├── docs/
+│   ├── architecture.md
+│   └── screenshots/
+├── compose.yml
+└── README.md
+```
+
+## Local Development
 
 ### Requirements
 
-* Java 21
-* Node.js compatible with Angular 21
-* Docker Desktop
-* Maven Wrapper
-* npm
+- Java 21
+- Node.js 22
+- npm
+- Docker Desktop
 
-Angular 21 supports Node.js ^20.19.0, ^22.12.0 or ^24.0.0, according to the official Angular version compatibility table.
-
-### 1. Start PostgreSQL and Redis
+### 1. Start the infrastructure
 
 From the project root:
 
@@ -265,77 +293,130 @@ From the project root:
 docker compose up -d
 ```
 
-Services:
+PostgreSQL is exposed locally on:
 
-```txt
-PostgreSQL: localhost:5433
-Redis: localhost:6379
+```text
+localhost:5433
 ```
 
-Database credentials:
+Local database configuration:
 
-```txt
+```text
 Database: ecommerce_db
 User: ecommerce_user
 Password: ecommerce_pass
 ```
 
-### 2. Start backend
+These credentials are intended only for the local Docker development environment.
+
+### 2. Start the backend
 
 ```powershell
 cd backend
 .\mvnw.cmd spring-boot:run
 ```
 
-Backend URL:
+Backend:
 
-```txt
+```text
 http://localhost:8081
 ```
 
-### 3. Start frontend
+Swagger UI:
+
+```text
+http://localhost:8081/swagger-ui.html
+```
+
+The product seeder loads the catalog from:
+
+```text
+backend/src/main/resources/seed/products.json
+```
+
+### 3. Start the frontend
+
+In another terminal:
 
 ```powershell
 cd frontend
-npm install
+npm ci
 npm start
 ```
 
-Frontend URL:
+Frontend:
 
-```txt
+```text
 http://localhost:4200
 ```
 
-## Useful Commands
+Main routes:
+
+```text
+/products
+/checkout
+/order-confirmation
+```
+
+## Testing
 
 ### Backend tests
 
 ```powershell
 cd backend
-.\mvnw.cmd test
+.\mvnw.cmd clean test
 ```
 
-### Frontend build
+The backend test suite covers:
+
+- Successful order creation.
+- Order total calculation.
+- Order-item persistence.
+- Product stock decrement.
+- Missing products.
+- Insufficient stock.
+- Invalid request bodies.
+- HTTP `201`, `400` and `404` behavior.
+
+Unit tests isolate `OrderService` with Mockito. Integration tests exercise the order endpoint with Spring Boot and MockMvc.
+
+### Frontend production build
 
 ```powershell
 cd frontend
+npm ci
 npm run build
 ```
 
-### Check PostgreSQL tables
+## Continuous Integration
+
+The GitHub Actions workflow runs on pushes and pull requests targeting `main` or `develop`.
+
+It performs two independent jobs:
+
+1. Starts the required backend services and runs the Maven test suite with Java 21.
+2. Installs frontend dependencies with `npm ci` and creates the Angular production build with Node.js 22.
+
+Workflow:
+
+```text
+.github/workflows/ci.yml
+```
+
+## Database Inspection
+
+Open a PostgreSQL shell:
 
 ```powershell
 docker exec -it ecommerce-postgres psql -U ecommerce_user -d ecommerce_db
 ```
 
-Inside psql:
+Useful queries:
 
 ```sql
-\dt
-
 SELECT order_number, customer_email, total_amount, status, created_at
-FROM customer_orders;
+FROM customer_orders
+ORDER BY created_at DESC;
 
 SELECT product_sku, product_name, quantity, unit_price, line_total
 FROM order_items;
@@ -345,61 +426,23 @@ FROM products
 ORDER BY name;
 ```
 
-Exit:
+Exit PostgreSQL:
 
 ```sql
 \q
 ```
 
-## Testing
+## Scope
 
-The backend includes both unit and integration tests.
+Pixeltronics is intentionally scoped as a portfolio e-commerce application focused on:
 
-### Unit tests
+- Angular component architecture and client-side state.
+- REST API integration.
+- Transactional backend business logic.
+- Relational persistence.
+- Validation and error handling.
+- Automated backend testing.
+- Reproducible local execution.
+- Interactive API documentation.
 
-OrderServiceTest validates the order business logic in isolation with Mockito:
-
-* Successful order creation.
-* Total calculation.
-* Order item creation.
-* Product stock decrement.
-* Product not found.
-* Insufficient stock.
-
-### Integration tests
-
-OrderControllerIntegrationTest validates the complete HTTP flow with Spring Boot and MockMvc:
-
-* POST /api/orders returns 201 Created.
-* Order is persisted.
-* Order items are created.
-* Product stock is decremented.
-* Invalid product returns 404.
-* Invalid request body returns 400.
-
-## Current Status
-
-Implemented:
-
-* Product catalog API.
-* Category API.
-* Product seeding from JSON.
-* Angular catalog UI.
-* Cart drawer.
-* LocalStorage cart persistence.
-* Checkout route.
-* Backend order creation.
-* PostgreSQL persistence for orders.
-* Stock update after order creation.
-* Unit tests for order service.
-* Integration tests for order endpoint.
-* Docker Compose local environment.
-
-Planned improvements:
-
-* Authentication with JWT.
-* Admin product management.
-* More advanced state management with NgRx SignalStore.
-* Testcontainers for database integration tests.
-* Public frontend demo with mock mode.
-* API documentation with OpenAPI.
+Authentication, administration, payments and a public production deployment are outside the current version's scope.

@@ -2,37 +2,109 @@
   {
     "sku": "KEYBOARD-001",
     "name": "Mechanical Keyboard",
-    "description": "Compact mechanical keyboard with RGB backlight and tactile switches.",
+    "description": "Compact mechanical keyboard with tactile switches, aluminum frame and customizable RGB lighting.",
     "price": 89.99,
     "stock": 25,
     "category": "Accessories",
-    "imageUrl": "/assets/products/keyboard.jpg"
+    "imageUrl": "/assets/products/mechanical-keyboard.png"
   },
   {
     "sku": "MOUSE-001",
     "name": "Wireless Mouse",
-    "description": "Ergonomic wireless mouse with adjustable DPI and long battery life.",
+    "description": "Ergonomic wireless mouse with adjustable DPI, silent clicks and long battery life.",
     "price": 39.99,
     "stock": 40,
     "category": "Accessories",
-    "imageUrl": "/assets/products/mouse.jpg"
+    "imageUrl": "/assets/products/wireless-mouse.png"
   },
   {
     "sku": "LAPTOP-001",
     "name": "Ultrabook 14",
-    "description": "Lightweight 14-inch laptop with fast SSD storage and high-resolution display.",
+    "description": "Lightweight 14-inch laptop with fast SSD storage, high-resolution display and all-day battery.",
     "price": 999.99,
     "stock": 12,
     "category": "Computers",
-    "imageUrl": "/assets/products/ultrabook.jpg"
+    "imageUrl": "/assets/products/ultrabook-14.png"
   },
   {
     "sku": "MONITOR-001",
     "name": "27-inch Monitor",
-    "description": "27-inch IPS monitor with sharp image quality and slim bezels.",
+    "description": "27-inch IPS monitor with sharp image quality, slim bezels and USB-C connectivity.",
     "price": 249.99,
     "stock": 18,
     "category": "Monitors",
-    "imageUrl": "/assets/products/monitor.jpg"
+    "imageUrl": "/assets/products/monitor-27.png"
+  },
+  {
+    "sku": "HEADSET-001",
+    "name": "Studio Headset",
+    "description": "Closed-back headset with clear microphone, soft ear cushions and balanced sound.",
+    "price": 74.99,
+    "stock": 22,
+    "category": "Audio",
+    "imageUrl": "/assets/products/studio-headset.png"
+  },
+  {
+    "sku": "SPEAKER-001",
+    "name": "Bluetooth Speaker",
+    "description": "Portable Bluetooth speaker with compact body, deep bass and water-resistant design.",
+    "price": 59.99,
+    "stock": 30,
+    "category": "Audio",
+    "imageUrl": "/assets/products/bluetooth-speaker.png"
+  },
+  {
+    "sku": "SSD-001",
+    "name": "Portable SSD 1TB",
+    "description": "Fast external SSD with USB-C connection, compact aluminum body and 1TB capacity.",
+    "price": 119.99,
+    "stock": 16,
+    "category": "Storage",
+    "imageUrl": "/assets/products/portable-ssd.png"
+  },
+  {
+    "sku": "DOCK-001",
+    "name": "USB-C Dock",
+    "description": "Multi-port USB-C dock with HDMI, Ethernet, card reader and power delivery support.",
+    "price": 69.99,
+    "stock": 20,
+    "category": "Accessories",
+    "imageUrl": "/assets/products/usb-c-dock.png"
+  },
+  {
+    "sku": "TABLET-001",
+    "name": "Tablet Pro 11",
+    "description": "11-inch tablet with bright display, slim metal body and support for keyboard accessories.",
+    "price": 649.99,
+    "stock": 10,
+    "category": "Computers",
+    "imageUrl": "/assets/products/tablet-pro-11.png"
+  },
+  {
+    "sku": "WEBCAM-001",
+    "name": "Webcam 1080p",
+    "description": "Full HD webcam with autofocus, privacy cover and dual microphones for video calls.",
+    "price": 49.99,
+    "stock": 35,
+    "category": "Accessories",
+    "imageUrl": "/assets/products/webcam-1080p.png"
+  },
+  {
+    "sku": "ROUTER-001",
+    "name": "Wi-Fi 6 Router",
+    "description": "Dual-band Wi-Fi 6 router designed for stable streaming, gaming and home office setups.",
+    "price": 129.99,
+    "stock": 14,
+    "category": "Networking",
+    "imageUrl": "/assets/products/wifi-6-router.png"
+  },
+  {
+    "sku": "MIC-001",
+    "name": "USB Microphone",
+    "description": "USB condenser microphone with desk stand, mute control and clean voice capture.",
+    "price": 84.99,
+    "stock": 19,
+    "category": "Audio",
+    "imageUrl": "/assets/products/usb-microphone.png"
   }
 ]

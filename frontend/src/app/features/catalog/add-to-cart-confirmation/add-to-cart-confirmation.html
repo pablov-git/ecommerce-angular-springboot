@@ -2,7 +2,7 @@
   class="confirmation-backdrop"
   role="dialog"
   aria-modal="true"
-  aria-label="Product added to cart"
+  aria-labelledby="add-confirmation-title"
   (click)="close()"
 >
   <section class="confirmation-modal" (click)="$event.stopPropagation()">
@@ -15,20 +15,36 @@
       ×
     </button>
 
-    <div class="confirmation-icon">✓</div>
+    <div class="confirmation-icon" aria-hidden="true">✓</div>
 
-    <h2>Added to cart</h2>
-    <p>
-      <strong>{{ product().name }}</strong>
-      has been added to your cart.
-    </p>
+    <h2 id="add-confirmation-title">Added to cart</h2>
+
+    <div class="confirmation-product">
+      <img
+        [src]="product().imageUrl"
+        [alt]="product().name"
+      />
+
+      <div>
+        <strong>{{ product().name }}</strong>
+        <span>Added to your shopping cart.</span>
+      </div>
+    </div>
 
     <div class="confirmation-actions">
-      <button type="button" class="secondary-action" (click)="close()">
+      <button
+        type="button"
+        class="secondary-action"
+        (click)="close()"
+      >
         Continue shopping
       </button>
 
-      <button type="button" class="primary-action" (click)="viewCart()">
+      <button
+        type="button"
+        class="primary-action"
+        (click)="viewCart()"
+      >
         View cart
       </button>
     </div>

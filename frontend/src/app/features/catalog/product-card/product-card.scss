@@ -8,37 +8,65 @@
   overflow: hidden;
   flex-direction: column;
   min-height: 100%;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #69598f;
   border-radius: 18px;
-  background: #ffffff;
+  background: #4e3d78;
   text-align: left;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 14px 32px rgba(10, 6, 18, 0.2);
+  transform: translateZ(0);
   transition:
-    transform 160ms ease,
-    box-shadow 160ms ease,
-    border-color 160ms ease;
+    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 220ms ease,
+    border-color 220ms ease;
 
   &:hover {
-    transform: translateY(-3px);
-    border-color: #d1d5db;
-    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.09);
+    transform: translateY(-7px);
+    border-color: #927db9;
+    box-shadow: 0 28px 58px rgba(10, 6, 18, 0.34);
+
+    .product-card__media img {
+      transform: scale(1.045);
+      filter: saturate(1.06) brightness(1.03);
+    }
+
+    .product-card__media span {
+      transform: translateY(-2px);
+      background: rgba(26, 17, 42, 0.94);
+    }
   }
 }
 
 .product-card__media {
-  display: flex;
-  min-height: 150px;
-  align-items: flex-end;
-  padding: 16px;
-  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1;
+  background: #4e3d78;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.001);
+    transition:
+      transform 360ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      filter 260ms ease;
+  }
 
   span {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 999px;
     padding: 6px 10px;
-    background: rgba(17, 24, 39, 0.88);
+    background: rgba(31, 24, 50, 0.86);
     color: #ffffff;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
+    backdrop-filter: blur(7px);
+    transition:
+      transform 180ms ease,
+      background 180ms ease;
   }
 }
 
@@ -46,20 +74,22 @@
   display: flex;
   flex: 1;
   flex-direction: column;
+  border-top: 1px solid rgba(255, 255, 255, 0.11);
   padding: 20px;
+  background: #4e3d78;
 }
 
 .product-card__sku {
   margin: 0 0 8px;
-  color: #9ca3af;
+  color: #c3b8dc;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.08em;
 }
 
 .product-card h2 {
   margin: 0 0 10px;
-  color: #111827;
+  color: #ffffff;
   font-size: 20px;
   line-height: 1.25;
   letter-spacing: -0.02em;
@@ -67,7 +97,7 @@
 
 .product-card__description {
   margin: 0;
-  color: #6b7280;
+  color: #ddd6eb;
   font-size: 14px;
   line-height: 1.55;
 }
@@ -81,7 +111,7 @@
   padding-top: 20px;
 
   strong {
-    color: #111827;
+    color: #ffffff;
     font-size: 20px;
     letter-spacing: -0.03em;
   }
@@ -92,17 +122,19 @@
   padding: 5px 9px;
   white-space: nowrap;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .stock--available {
-  background: #ecfdf5;
-  color: #047857;
+  border: 1px solid rgba(167, 243, 208, 0.24);
+  background: rgba(6, 95, 70, 0.28);
+  color: #d1fae5;
 }
 
 .stock--empty {
-  background: #fef2f2;
-  color: #b91c1c;
+  border: 1px solid rgba(254, 202, 202, 0.24);
+  background: rgba(153, 27, 27, 0.3);
+  color: #fee2e2;
 }
 
 .add-button {
@@ -111,20 +143,30 @@
   margin-top: 18px;
   border: 0;
   border-radius: 12px;
-  padding: 12px 16px;
-  background: #111827;
+  padding: 13px 16px;
+  background: #f46b4d;
   color: #ffffff;
   font: inherit;
-  font-weight: 700;
+  font-weight: 800;
+  box-shadow: 0 9px 22px rgba(56, 31, 73, 0.24);
   transition:
     transform 150ms ease,
     background 150ms ease,
     box-shadow 150ms ease;
 
-  &:hover {
-    transform: translateY(-1px);
-    background: #020617;
-    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    background: #ff7658;
+    box-shadow: 0 14px 28px rgba(56, 31, 73, 0.34);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(255, 173, 153, 0.5);
+    outline-offset: 3px;
   }
 
   &:disabled {

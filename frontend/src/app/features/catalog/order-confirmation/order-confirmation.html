@@ -1,10 +1,18 @@
 <section class="order-confirmation">
   <article class="order-card">
+    <p class="order-card__brand">Pixeltronics · Tech Store</p>
+
     @if (orderSummary(); as order) {
-      <div class="order-card__icon">✓</div>
+      <div class="order-card__icon" aria-hidden="true">✓</div>
 
       <h1>Order placed</h1>
-      <p>Your order has been created successfully.</p>
+      <p class="order-card__description">
+        Your order has been created successfully.
+      </p>
+
+      <span class="order-status">
+        {{ order.status }}
+      </span>
 
       <dl>
         <div>
@@ -23,8 +31,13 @@
         </div>
       </dl>
     } @else {
+      <div class="order-card__icon order-card__icon--empty">!</div>
+
       <h1>No order found</h1>
-      <p>There is no recent order to display.</p>
+
+      <p class="order-card__description">
+        There is no recent order to display.
+      </p>
     }
 
     <button type="button" (click)="backToProducts()">

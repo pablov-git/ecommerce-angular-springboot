@@ -5,35 +5,39 @@
   display: grid;
   place-items: center;
   padding: 24px;
-  background: rgba(17, 24, 39, 0.34);
-  backdrop-filter: blur(3px);
+  background: rgba(10, 6, 18, 0.66);
+  backdrop-filter: blur(9px);
+  animation: confirmation-backdrop-enter 180ms ease-out;
 }
 
 .confirmation-modal {
   position: relative;
-  width: min(420px, 100%);
-  border: 1px solid #e5e7eb;
-  border-radius: 20px;
+  width: min(440px, 100%);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 22px;
   padding: 30px;
-  background: #ffffff;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(244, 107, 77, 0.13),
+      transparent 15rem
+    ),
+    linear-gradient(
+      145deg,
+      rgba(78, 61, 120, 0.98),
+      rgba(41, 28, 64, 0.99)
+    );
+  color: #ffffff;
   text-align: center;
-  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.22);
+  box-shadow: 0 28px 90px rgba(5, 3, 10, 0.52);
+  animation: confirmation-modal-enter 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
 
   h2 {
     margin: 14px 0 8px;
-    color: #111827;
-    font-size: 26px;
+    color: #ffffff;
+    font-size: 27px;
     letter-spacing: -0.035em;
-  }
-
-  p {
-    margin: 0;
-    color: #6b7280;
-    line-height: 1.55;
-  }
-
-  p strong {
-    color: #111827;
   }
 }
 
@@ -42,59 +46,165 @@
   top: 14px;
   right: 14px;
   cursor: pointer;
-  width: 34px;
-  height: 34px;
-  border: 0;
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 999px;
-  background: #f3f4f6;
-  color: #111827;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
   font-size: 22px;
   line-height: 1;
+  transition:
+    transform 150ms ease,
+    background 150ms ease,
+    border-color 150ms ease;
+
+  &:hover {
+    transform: rotate(5deg) scale(1.05);
+    border-color: rgba(255, 255, 255, 0.26);
+    background: rgba(255, 255, 255, 0.17);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(244, 107, 77, 0.4);
+    outline-offset: 2px;
+  }
 }
 
 .confirmation-icon {
   display: grid;
-  width: 52px;
-  height: 52px;
+  width: 54px;
+  height: 54px;
   place-items: center;
   margin: 0 auto;
+  border: 1px solid rgba(167, 243, 208, 0.3);
   border-radius: 999px;
-  background: #ecfdf5;
-  color: #047857;
-  font-size: 28px;
+  background: rgba(6, 95, 70, 0.3);
+  color: #a7f3d0;
+  font-size: 29px;
   font-weight: 900;
+  box-shadow: 0 0 28px rgba(16, 185, 129, 0.16);
+}
+
+.confirmation-product {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  margin-top: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  text-align: left;
+
+  img {
+    width: 76px;
+    height: 76px;
+    border-radius: 12px;
+    object-fit: cover;
+  }
+
+  div {
+    display: grid;
+    min-width: 0;
+    gap: 5px;
+  }
+
+  strong {
+    overflow-wrap: anywhere;
+    color: #ffffff;
+    font-size: 15px;
+    line-height: 1.35;
+  }
+
+  span {
+    color: #d8cee9;
+    font-size: 13px;
+    line-height: 1.45;
+  }
 }
 
 .confirmation-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  margin-top: 24px;
+  margin-top: 22px;
 
   button {
     cursor: pointer;
     border-radius: 12px;
-    padding: 12px 14px;
+    padding: 13px 14px;
     font: inherit;
     font-weight: 800;
+    transition:
+      transform 150ms ease,
+      background 150ms ease,
+      border-color 150ms ease,
+      box-shadow 150ms ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+
+    &:focus-visible {
+      outline: 3px solid rgba(244, 107, 77, 0.38);
+      outline-offset: 2px;
+    }
   }
 }
 
 .secondary-action {
-  border: 1px solid #d1d5db;
-  background: #ffffff;
-  color: #374151;
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  background: rgba(255, 255, 255, 0.1);
+  color: #f4effb;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.17);
+  }
 }
 
 .primary-action {
-  border: 1px solid #2563eb;
-  background: #2563eb;
+  border: 1px solid #f46b4d;
+  background: #f46b4d;
   color: #ffffff;
+  box-shadow: 0 12px 26px rgba(244, 107, 77, 0.25);
+
+  &:hover {
+    border-color: #ff7a5c;
+    background: #ff7658;
+    box-shadow: 0 16px 32px rgba(244, 107, 77, 0.34);
+  }
+}
+
+@keyframes confirmation-backdrop-enter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes confirmation-modal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @media (max-width: 520px) {
   .confirmation-modal {
-    padding: 26px 20px;
+    padding: 28px 20px 22px;
   }
 
   .confirmation-actions {

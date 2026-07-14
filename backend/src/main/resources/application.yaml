@@ -32,3 +32,16 @@ logging:
 
 cors:
   allowed-origins: http://localhost:4200
+
+springdoc:
+  paths-to-match: /api/**
+
+  api-docs:
+    path: /v3/api-docs
+
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: method
+    display-request-duration: true
+    try-it-out-enabled: true

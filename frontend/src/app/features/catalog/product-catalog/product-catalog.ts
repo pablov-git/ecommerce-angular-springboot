@@ -1,4 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  HostListener,
+  inject,
+  signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
 
 import { AddToCartConfirmation } from '../add-to-cart-confirmation/add-to-cart-confirmation';
@@ -10,6 +16,11 @@ import { Product } from '../models/product';
 import { ProductCard } from '../product-card/product-card';
 
 type SortOption = 'name-asc' | 'price-asc' | 'price-desc';
+
+interface SortOptionItem {
+  value: SortOption;
+  label: string;
+}
 
 @Component({
   selector: 'app-product-catalog',
@@ -33,11 +44,36 @@ export class ProductCatalog {
   readonly selectedCategorySlug = signal<string>('all');
   readonly searchTerm = signal('');
   readonly sortOption = signal<SortOption>('name-asc');
+  readonly isSortMenuOpen = signal(false);
+
   readonly isCartOpen = signal(false);
   readonly addedProduct = signal<Product | null>(null);
 
   readonly isLoading = signal(true);
   readonly errorMessage = signal('');
+
+  readonly sortOptions: ReadonlyArray<SortOptionItem> = [
+    {
+      value: 'name-asc',
+      label: 'Name',
+    },
+    {
+      value: 'price-asc',
+      label: 'Price: low to high',
+    },
+    {
+      value: 'price-desc',
+      label: 'Price: high to low',
+    },
+  ];
+
+  readonly selectedSortLabel = computed(() => {
+    return (
+      this.sortOptions.find(
+        (option) => option.value === this.sortOption(),
+      )?.label ?? 'Name'
+    );
+  });
 
   readonly filteredProducts = computed(() => {
     const selectedCategorySlug = this.selectedCategorySlug();
@@ -76,12 +112,57 @@ export class ProductCatalog {
     this.loadCatalog();
   }
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target;
+
+    if (
+      !(target instanceof Element) ||
+      !target.closest('.sort-control')
+    ) {
+      this.closeSortMenu();
+    }
+  }
+
   selectCategory(categorySlug: string): void {
     this.selectedCategorySlug.set(categorySlug);
   }
 
+  toggleSortMenu(): void {
+    this.isSortMenuOpen.update((isOpen) => !isOpen);
+  }
+
+  closeSortMenu(): void {
+    this.isSortMenuOpen.set(false);
+  }
+
+  selectSortOption(option: SortOption): void {
+    this.sortOption.set(option);
+    this.closeSortMenu();
+  }
+
+  onSortTriggerKeydown(event: KeyboardEvent): void {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      this.isSortMenuOpen.set(true);
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.closeSortMenu();
+    }
+  }
+
+  onSortMenuKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.closeSortMenu();
+    }
+  }
+
   openCart(): void {
     this.closeAddedProductConfirmation();
+    this.closeSortMenu();
     this.isCartOpen.set(true);
   }
 
@@ -134,11 +215,6 @@ export class ProductCatalog {
   onSearchChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.searchTerm.set(input.value);
-  }
-
-  onSortChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.sortOption.set(select.value as SortOption);
   }
 
   private showAddedProductConfirmation(product: Product): void {

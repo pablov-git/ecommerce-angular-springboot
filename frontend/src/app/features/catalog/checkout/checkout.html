@@ -4,13 +4,16 @@
   </button>
 
   <header class="checkout-header">
+    <p class="checkout-header__brand">Pixeltronics · Tech Store</p>
+
     <h1>Checkout</h1>
-    <p>Review your order before placing it.</p>
+    <p>Review your order and complete your contact details.</p>
   </header>
 
   @if (cartItems().length === 0) {
     <section class="checkout-card">
       <h2>Your cart is empty</h2>
+
       <p class="empty-checkout-message">
         Add products to your cart before continuing to checkout.
       </p>
@@ -20,46 +23,94 @@
       </button>
     </section>
   } @else {
-    <form class="checkout-layout" (submit)="placeOrder($event)">
+    <form
+      class="checkout-layout"
+      novalidate
+      (submit)="placeOrder($event)"
+    >
       <div class="checkout-card">
         <h2>Contact details</h2>
 
         <div class="checkout-form">
-          <label>
-            <span>Name</span>
+          <div class="form-field">
+            <label for="customer-name">Name</label>
+
             <input
+              id="customer-name"
               type="text"
               placeholder="Your name"
               autocomplete="name"
+              required
+              minlength="2"
+              maxlength="160"
               [value]="name()"
+              [class.input--invalid]="nameError()"
+              [attr.aria-invalid]="nameError() ? 'true' : 'false'"
+              aria-describedby="name-error"
               (input)="onNameChange($event)"
+              (blur)="markNameTouched()"
             />
-          </label>
 
-          <label>
-            <span>Email</span>
+            @if (nameError()) {
+              <p id="name-error" class="field-error">
+                {{ nameError() }}
+              </p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="customer-email">Email</label>
+
             <input
+              id="customer-email"
               type="email"
               placeholder="you@example.com"
               autocomplete="email"
+              required
+              maxlength="180"
               [value]="email()"
+              [class.input--invalid]="emailError()"
+              [attr.aria-invalid]="emailError() ? 'true' : 'false'"
+              aria-describedby="email-error"
               (input)="onEmailChange($event)"
+              (blur)="markEmailTouched()"
             />
-          </label>
 
-          <label>
-            <span>Address</span>
+            @if (emailError()) {
+              <p id="email-error" class="field-error">
+                {{ emailError() }}
+              </p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="shipping-address">Address</label>
+
             <input
+              id="shipping-address"
               type="text"
               placeholder="Shipping address"
               autocomplete="street-address"
+              required
+              minlength="5"
+              maxlength="500"
               [value]="address()"
+              [class.input--invalid]="addressError()"
+              [attr.aria-invalid]="addressError() ? 'true' : 'false'"
+              aria-describedby="address-error"
               (input)="onAddressChange($event)"
+              (blur)="markAddressTouched()"
             />
-          </label>
+
+            @if (addressError()) {
+              <p id="address-error" class="field-error">
+                {{ addressError() }}
+              </p>
+            }
+          </div>
 
           @if (orderErrorMessage()) {
-            <p class="checkout-error">
+            <p class="checkout-error" role="alert">
               {{ orderErrorMessage() }}
             </p>
           }
@@ -87,13 +138,17 @@
           <strong>{{ cartSubtotal() | currency: 'EUR' }}</strong>
         </div>
 
-        <button type="submit" [disabled]="!isValid()">
+        <button type="submit" [disabled]="isSubmitting()">
           {{ isSubmitting() ? 'Placing order...' : 'Place order' }}
         </button>
 
-        @if (!isValid() && !isSubmitting()) {
+        @if (submitAttempted() && !isValid()) {
+          <p class="checkout-message checkout-message--error">
+            Review the highlighted fields before placing the order.
+          </p>
+        } @else {
           <p class="checkout-message">
-            Complete your contact details to place the order.
+            Your order will be validated before it is created.
           </p>
         }
       </aside>
