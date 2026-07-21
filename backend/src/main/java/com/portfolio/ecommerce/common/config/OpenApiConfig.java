@@ -10,10 +10,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
     info = @Info(
-        title = "Pixeltronics API",
+        title = "E-commerce API",
         version = "1.0.0",
         description = """
-            REST API for the Pixeltronics e-commerce application.
+            REST API for the e-commerce application.
 
             Provides product and category queries and transactional
             customer order creation with stock validation and persistence.

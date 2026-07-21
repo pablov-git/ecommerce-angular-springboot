@@ -1,10 +1,10 @@
-# Pixeltronics
+# E-commerce full-stack
 
 Full-stack e-commerce portfolio project built with **Angular 21**, **Spring Boot 4.1**, **Java 21** and **PostgreSQL**.
 
-Pixeltronics implements a complete catalog-to-order flow: products are loaded from a REST API, the cart is persisted in the browser, checkout data is validated, and orders are created transactionally in PostgreSQL while product stock is updated.
+This e-commerce implements a complete catalog-to-order flow: products are loaded from a REST API, the cart is persisted in the browser, checkout data is validated, and orders are created transactionally in PostgreSQL while product stock is updated.
 
-![Pixeltronics product catalog](docs/screenshots/pixeltronics-1.png)
+![Product catalog](docs/screenshots/pixeltronics-1.png)
 
 ## Main Features
 
@@ -15,7 +15,7 @@ Pixeltronics implements a complete catalog-to-order flow: products are loaded fr
 - Category filtering.
 - Custom sorting by name and price.
 - Product stock visibility.
-- Responsive Pixeltronics interface with subtle transitions and reduced-motion support.
+- Responsive interface with subtle transitions and reduced-motion support.
 
 ### Shopping cart
 
@@ -434,7 +434,7 @@ Exit PostgreSQL:
 
 ## Scope
 
-Pixeltronics is intentionally scoped as a portfolio e-commerce application focused on:
+This project is intentionally scoped as a portfolio e-commerce application focused on:
 
 - Angular component architecture and client-side state.
 - REST API integration.
