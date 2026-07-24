@@ -2,7 +2,9 @@
 
 Full-stack e-commerce portfolio project built with **Angular 21**, **Spring Boot 4.1**, **Java 21** and **PostgreSQL**.
 
-This e-commerce implements a complete catalog-to-order flow: products are loaded from a REST API, the cart is persisted in the browser, checkout data is validated, and orders are created transactionally in PostgreSQL while product stock is updated.
+The application implements a complete catalog-to-order flow: product browsing, search and filtering, a persistent shopping cart, validated checkout, transactional order creation and stock updates.
+
+[View Live Demo](https://ecommerce-pablov.vercel.app/products)
 
 ![Product catalog](docs/screenshots/pixeltronics-1.png)
 
@@ -10,7 +12,8 @@ This e-commerce implements a complete catalog-to-order flow: products are loaded
 
 ### Product catalog
 
-- Product data loaded from the Spring Boot API.
+- Product catalog loaded from the Spring Boot REST API in full-stack mode.
+- Seeded product catalog available in frontend demo mode.
 - Search by product name or category.
 - Category filtering.
 - Custom sorting by name and price.
@@ -24,7 +27,7 @@ This e-commerce implements a complete catalog-to-order flow: products are loaded
 - Remove individual items or clear the cart.
 - Prevent quantities from exceeding available stock.
 - Persist cart state in `localStorage`.
-- Synchronize persisted cart data with the current backend catalog.
+- Synchronize persisted cart data with the current product catalog.
 
 ### Checkout
 
@@ -32,11 +35,11 @@ This e-commerce implements a complete catalog-to-order flow: products are loaded
 - User-friendly validation for name, email and shipping address.
 - Inline validation messages and accessible invalid-field states.
 - Order summary with quantities and calculated total.
-- Error feedback when the backend cannot create the order.
+- Error feedback when an order cannot be created.
 
 ### Order processing
 
-`POST /api/orders` performs the complete order workflow inside a transaction:
+In full-stack mode, `POST /api/orders` performs the complete order workflow inside a database transaction:
 
 1. Validates the request body.
 2. Loads and validates every requested product.
@@ -47,12 +50,21 @@ This e-commerce implements a complete catalog-to-order flow: products are loaded
 7. Decreases product stock.
 8. Returns the created order with HTTP `201 Created`.
 
+Frontend demo mode reproduces the same user-facing flow locally:
+
+1. Validates the requested products and quantities.
+2. Checks the locally available stock.
+3. Calculates line totals and the final order total.
+4. Generates an order number and confirmation.
+5. Decreases the locally stored product stock.
+6. Preserves demo data in browser storage.
+
 ### API documentation
 
 - OpenAPI specification generated with Springdoc.
 - Interactive Swagger UI.
 - Documented request schemas, response schemas and HTTP status codes.
-- Executable API requests from the browser.
+- Executable API requests from the browser while the backend is running.
 
 ## Application Flow
 
@@ -90,6 +102,9 @@ This e-commerce implements a complete catalog-to-order flow: products are loaded
 - Angular Router
 - SCSS
 - Browser `localStorage`
+- Browser `sessionStorage`
+- Environment-based execution modes
+- Vercel
 
 ### Backend
 
@@ -114,6 +129,61 @@ This e-commerce implements a complete catalog-to-order flow: products are loaded
 - Docker Compose
 - GitHub Actions
 - npm
+
+## Execution Modes
+
+The frontend supports two execution modes.
+
+### Full-stack mode
+
+The standard local development configuration connects Angular to the Spring Boot API and PostgreSQL database.
+
+```text
+Angular application
+        |
+        | HTTP / JSON
+        v
+Spring Boot REST API
+        |
+        | JPA / Hibernate
+        v
+PostgreSQL
+```
+
+This mode provides:
+
+- Real REST API communication.
+- Database-backed product and order persistence.
+- Transactional order creation.
+- Relational order and order-item storage.
+- Persistent stock updates.
+- Swagger and OpenAPI documentation.
+
+### Frontend demo mode
+
+The public Vercel deployment uses the Angular frontend without requiring a permanently hosted Java backend.
+
+```text
+Angular application
+        |
+        v
+DemoStore
+        |
+        v
+localStorage / sessionStorage
+```
+
+This mode provides:
+
+- Seeded product and category data.
+- Product search, filtering and sorting.
+- Persistent shopping cart.
+- Stock validation.
+- Local stock updates.
+- Checkout validation.
+- Order total calculation.
+- Order-number generation.
+- Order confirmation after navigation or page reload.
 
 ## Architecture
 
@@ -140,24 +210,13 @@ checkout/
 order-confirmation/
 ```
 
-State is handled through injectable signal-based stores:
+State and data access are separated into focused services:
 
 - `CartStore` manages cart state and `localStorage` persistence.
-- `OrderStore` keeps the latest order response available for the confirmation route.
-
-High-level flow:
-
-```text
-Angular application
-        |
-        | HTTP / JSON
-        v
-Spring Boot REST API
-        |
-        | JPA / Hibernate
-        v
-PostgreSQL
-```
+- `OrderStore` keeps the latest order response available and temporarily persists it in `sessionStorage`.
+- `CatalogApi` loads products and categories from either the backend or the demo store.
+- `OrderApi` creates orders through either the REST API or the demo store.
+- `DemoStore` reproduces catalog, stock and order behavior for the frontend-only deployment.
 
 Additional architecture notes are available in [`docs/architecture.md`](docs/architecture.md).
 
@@ -266,9 +325,29 @@ ecommerce-angular-springboot/
 │   ├── public/
 │   │   └── assets/products/
 │   ├── src/
-│   │   └── app/features/catalog/
+│   │   ├── app/
+│   │   │   └── features/catalog/
+│   │   │       ├── data/
+│   │   │       │   ├── catalog-api.ts
+│   │   │       │   ├── demo-data.ts
+│   │   │       │   ├── demo-store.ts
+│   │   │       │   ├── order-api.ts
+│   │   │       │   └── order-store.ts
+│   │   │       ├── models/
+│   │   │       │   └── order.ts
+│   │   │       ├── add-to-cart-confirmation/
+│   │   │       ├── cart-drawer/
+│   │   │       ├── checkout/
+│   │   │       ├── order-confirmation/
+│   │   │       ├── product-card/
+│   │   │       └── product-catalog/
+│   │   └── environments/
+│   │       ├── environment.ts
+│   │       └── environment.development.ts
+│   ├── angular.json
 │   ├── package.json
-│   └── package-lock.json
+│   ├── package-lock.json
+│   └── vercel.json
 ├── docs/
 │   ├── architecture.md
 │   └── screenshots/
@@ -285,7 +364,7 @@ ecommerce-angular-springboot/
 - npm
 - Docker Desktop
 
-### 1. Start the infrastructure
+### 1. Start PostgreSQL
 
 From the project root:
 
@@ -334,7 +413,7 @@ The product seeder loads the catalog from:
 backend/src/main/resources/seed/products.json
 ```
 
-### 3. Start the frontend
+### 3. Start the frontend in full-stack mode
 
 In another terminal:
 
@@ -350,12 +429,44 @@ Frontend:
 http://localhost:4200
 ```
 
+In this mode, Angular communicates with:
+
+```text
+http://localhost:8081/api
+```
+
 Main routes:
 
 ```text
 /products
 /checkout
 /order-confirmation
+```
+
+### 4. Start the frontend in demo mode
+
+The frontend-only mode can be executed without starting Spring Boot or PostgreSQL:
+
+```powershell
+cd frontend
+npm ci
+npm run start:demo
+```
+
+Frontend:
+
+```text
+http://localhost:4200
+```
+
+The demo stores product stock in `localStorage` and the latest order confirmation in `sessionStorage`.
+
+To reset the local demo data, run this in the browser console:
+
+```javascript
+localStorage.removeItem('pixeltronics-demo-products-v1');
+sessionStorage.removeItem('pixeltronics-last-order');
+location.reload();
 ```
 
 ## Testing
@@ -388,13 +499,40 @@ npm ci
 npm run build
 ```
 
+The production build is generated in:
+
+```text
+frontend/dist/frontend/browser
+```
+
+## Deployment
+
+The Angular frontend is deployed on Vercel:
+
+[https://ecommerce-pablov.vercel.app/products](https://ecommerce-pablov.vercel.app/products)
+
+Deployment configuration:
+
+```text
+Application preset: Angular
+Root directory: frontend
+Build command: npm run build
+Output directory: dist/frontend/browser
+```
+
+The SPA rewrite configuration is defined in:
+
+```text
+frontend/vercel.json
+```
+
 ## Continuous Integration
 
 The GitHub Actions workflow runs on pushes and pull requests targeting `main` or `develop`.
 
 It performs two independent jobs:
 
-1. Starts the required backend services and runs the Maven test suite with Java 21.
+1. Starts PostgreSQL and runs the Maven test suite with Java 21.
 2. Installs frontend dependencies with `npm ci` and creates the Angular production build with Node.js 22.
 
 Workflow:
@@ -444,5 +582,7 @@ This project is intentionally scoped as a portfolio e-commerce application focus
 - Automated backend testing.
 - Reproducible local execution.
 - Interactive API documentation.
+- Environment-based frontend execution.
+- Public frontend deployment.
 
-Authentication, administration, payments and a public production deployment are outside the current version's scope.
+Authentication, administration, real payments, invoicing and shipping management are outside the current scope.
