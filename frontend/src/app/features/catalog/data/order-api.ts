@@ -1,47 +1,38 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import {
+  defer,
+  delay,
+  Observable,
+  of,
+} from 'rxjs';
 
-export interface CreateOrderRequest {
-  customerName: string;
-  customerEmail: string;
-  shippingAddress: string;
-  items: CreateOrderItemRequest[];
-}
-
-export interface CreateOrderItemRequest {
-  productId: string;
-  quantity: number;
-}
-
-export interface OrderResponse {
-  id: string;
-  orderNumber: string;
-  customerName: string;
-  customerEmail: string;
-  shippingAddress: string;
-  status: string;
-  totalAmount: number;
-  createdAt: string;
-  items: OrderItemResponse[];
-}
-
-export interface OrderItemResponse {
-  productId: string;
-  productSku: string;
-  productName: string;
-  unitPrice: number;
-  quantity: number;
-  lineTotal: number;
-}
+import { environment } from '../../../../environments/environment';
+import {
+  CreateOrderRequest,
+  OrderResponse,
+} from '../models/order';
+import { DemoStore } from './demo-store';
 
 @Injectable({
   providedIn: 'root',
 })
 export class OrderApi {
   private readonly http = inject(HttpClient);
-  private readonly apiBaseUrl = 'http://localhost:8081/api';
+  private readonly demoStore = inject(DemoStore);
 
-  createOrder(request: CreateOrderRequest) {
-    return this.http.post<OrderResponse>(`${this.apiBaseUrl}/orders`, request);
+  createOrder(
+    request: CreateOrderRequest,
+  ): Observable<OrderResponse> {
+    if (environment.demoMode) {
+      return defer(() =>
+        of(this.demoStore.createOrder(request)),
+      ).pipe(delay(450));
+    }
+
+    return this.http.post<OrderResponse>(
+      `${environment.apiBaseUrl}/orders`,
+      request,
+    );
   }
 }
